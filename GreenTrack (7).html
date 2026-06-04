@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GreenTrack">
+<meta name="theme-color" content="#1a2e1a">
+<title>GreenTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-deep:#1a2e1a;
+  --green-mid:#2d5a2d;
+  --green-bright:#4a9b4a;
+  --green-light:#c8e6c8;
+  --green-pale:#f0f7f0;
+  --amber:#e8a020;
+  --amber-light:#fff8e6;
+  --red:#d64444;
+  --red-light:#fef0f0;
+  --cream:#faf9f5;
+  --text:#1a2e1a;
+  --text-mid:#4a6349;
+  --text-soft:#7a9479;
+  --border:#d4e4d4;
+  --white:#ffffff;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 2px 20px rgba(26,46,26,0.10);
+  --shadow-lg:0 8px 40px rgba(26,46,26,0.18);
+  --card-bg:#ffffff;
+  --page-bg:#faf9f5;
+}
+body.dark{
+  --green-deep:#0d1f0d;
+  --green-mid:#1a3d1a;
+  --green-bright:#4a9b4a;
+  --green-light:#2d5a2d;
+  --green-pale:#1a2e1a;
+  --cream:#121f12;
+  --text:#e8f5e8;
+  --text-mid:#a8c8a8;
+  --text-soft:#6a9b6a;
+  --border:#2d4a2d;
+  --white:#1a2e1a;
+  --card-bg:#1a2e1a;
+  --page-bg:#121f12;
+  --red-light:#3d1a1a;
+  --amber-light:#3d2e0d;
+}
+body.dark .home-hero{background:linear-gradient(160deg,#0d1f0d 0%,#1a3d1a 100%) !important}
+body.dark .batch-card{background:#1a2e1a}
+body.dark .modal{background:#1a2e1a}
+body.dark .form-input{background:#0d1f0d;color:var(--text);border-color:var(--border)}
+body.dark .bottom-nav{background:#1a2e1a;border-color:#2d4a2d}
+body.dark .today-card{background:#1a2e1a}
+body.dark .sched-card{background:#1a2e1a}
+body.dark input[type="date"]{color-scheme:dark}
+html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--text);overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--green-deep);padding:env(safe-area-inset-top,0) 0 0;display:flex;align-items:center;justify-content:space-between;padding-left:20px;padding-right:20px;padding-bottom:14px;padding-top:calc(env(safe-area-inset-top,0) + 14px)}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;letter-spacing:-0.3px}
+.nav-logo span{color:var(--green-light);font-style:italic}
+.nav-add{background:var(--green-bright);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+.nav-add svg{width:14px;height:14px}
+
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:80px;padding-bottom:100px}
+.page.active{display:block}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:100}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0;cursor:pointer;gap:4px;border:none;background:none;font-family:'DM Sans',sans-serif}
+.bnav-item svg{width:22px;height:22px;stroke:var(--text-soft);transition:stroke 0.2s}
+.bnav-item span{font-size:10px;color:var(--text-soft);font-weight:500;transition:color 0.2s}
+.bnav-item.active svg{stroke:var(--green-mid)}
+.bnav-item.active span{color:var(--green-mid)}
+
+/* HOME PAGE */
+.home-hero{background:linear-gradient(160deg,var(--green-deep) 0%,var(--green-mid) 100%);padding:28px 20px 32px;margin-bottom:0}
+.home-date{color:var(--green-light);font-size:12px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
+.home-title{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;line-height:1.2;margin-bottom:4px}
+.home-subtitle{color:rgba(255,255,255,0.65);font-size:13px}
+.home-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:20px;margin-top:-1px;background:var(--green-deep)}
+.stat-card{background:rgba(255,255,255,0.10);border-radius:12px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:#fff;font-family:'DM Serif Display',serif}
+.stat-label{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+
+.section-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);padding:20px 20px 10px}
+
+/* GH CARDS */
+.gh-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px 8px}
+.gh-card{border-radius:var(--radius);overflow:hidden;cursor:pointer;position:relative;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:var(--shadow)}
+.gh-card-bg{position:absolute;inset:0;background:var(--green-mid);background-size:cover;background-position:center}
+.gh-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,25,10,0.85) 0%,rgba(10,25,10,0.2) 60%,transparent 100%)}
+.gh-card-body{position:relative;z-index:1;padding:12px}
+.gh-card-name{font-family:'DM Serif Display',serif;font-size:16px;color:#fff;margin-bottom:2px}
+.gh-card-meta{font-size:11px;color:rgba(255,255,255,0.7);font-weight:500}
+.gh-card-badge{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,0.4);border-radius:20px;padding:3px 8px;font-size:10px;color:#fff;font-weight:600;backdrop-filter:blur(4px)}
+
+/* TODAY CARD */
+.today-card{margin:0 20px 8px;background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.today-header{background:var(--green-pale);padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.today-icon{width:36px;height:36px;background:var(--green-bright);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.today-icon svg{width:18px;height:18px;stroke:#fff}
+.today-header-text h3{font-size:14px;font-weight:600;color:var(--text)}
+.today-header-text p{font-size:12px;color:var(--text-soft)}
+.today-tasks{padding:4px 0}
+.task-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--green-pale);cursor:pointer}
+.task-row:last-child{border-bottom:none}
+.task-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.task-check.done{background:var(--green-bright);border-color:var(--green-bright)}
+.task-check.done svg{display:block}
+.task-check svg{display:none;width:12px;height:12px;stroke:#fff;stroke-width:2.5}
+.task-text{font-size:13px;color:var(--text);flex:1;line-height:1.4}
+.task-text.done{text-decoration:line-through;color:var(--text-soft)}
+.task-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.tag-harvest{background:#fff3e0;color:#e65100}
+.tag-plant{background:var(--green-pale);color:var(--green-mid)}
+.tag-sow{background:#e8f4f8;color:#1565c0}
+.tag-mix{background:#f3e5f5;color:#6a1b9a}
+
+/* GH DETAIL MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,20px)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+.modal-header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text)}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--green-pale);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close svg{width:16px;height:16px;stroke:var(--text-mid)}
+
+/* BATCH CARDS */
+.batch-list{padding:12px 20px}
+.batch-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+.batch-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.batch-name{font-size:14px;font-weight:600;color:var(--text)}
+.batch-status{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.status-growing{background:#e8f5e9;color:#2e7d32}
+.status-ready{background:#fff3e0;color:#e65100}
+.status-sowing{background:#e3f2fd;color:#1565c0}
+.status-empty{background:var(--green-pale);color:var(--text-soft)}
+.batch-dates{padding:0 14px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.date-item{text-align:center}
+.date-label{font-size:9px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;color:var(--text-soft);margin-bottom:3px}
+.date-val{font-size:12px;font-weight:500;color:var(--text)}
+.date-val.highlight{color:var(--green-bright);font-weight:700}
+.date-val.warn{color:var(--amber);font-weight:700}
+.date-val.urgent{color:var(--red);font-weight:700}
+.batch-progress{height:4px;background:var(--border);margin:0 14px 12px;border-radius:2px}
+.batch-progress-bar{height:100%;border-radius:2px;background:var(--green-bright);transition:width 0.5s}
+
+/* ADD GH FORM */
+.form-section{padding:20px}
+.form-group{margin-bottom:18px}
+.form-label{font-size:12px;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--white);outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--green-bright)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.photo-upload{width:100%;height:100px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--green-pale);gap:6px;transition:border-color 0.2s;position:relative;overflow:hidden}
+.photo-upload:hover{border-color:var(--green-bright)}
+.photo-upload svg{width:24px;height:24px;stroke:var(--text-soft)}
+.photo-upload span{font-size:12px;color:var(--text-soft)}
+.photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.photo-preview{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.btn-primary{width:100%;padding:15px;background:var(--green-mid);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background 0.2s}
+.btn-primary:active{background:var(--green-deep)}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* SCHEDULE PAGE */
+.week-scroll{display:flex;gap:8px;padding:16px 20px;overflow-x:auto;scrollbar-width:none}
+.week-scroll::-webkit-scrollbar{display:none}
+.week-chip{flex-shrink:0;padding:8px 16px;border-radius:50px;border:1.5px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--text-mid);transition:all 0.2s}
+.week-chip.active{background:var(--green-deep);color:#fff;border-color:var(--green-deep)}
+.sched-card{margin:0 20px 10px;background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.sched-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.dot-harvest{background:#f57c00}
+.dot-plant{background:var(--green-bright)}
+.dot-sow{background:#1e88e5}
+.sched-info h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sched-info p{font-size:12px;color:var(--text-soft)}
+.sched-info .sched-gh{font-size:11px;color:var(--green-mid);font-weight:600;margin-top:4px}
+
+/* SETTINGS PAGE */
+.settings-list{padding:0 20px}
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.settings-item:last-child{border-bottom:none}
+.settings-label{font-size:14px;font-weight:500;color:var(--text)}
+.settings-sub{font-size:12px;color:var(--text-soft);margin-top:2px}
+.toggle{width:44px;height:26px;background:var(--border);border-radius:13px;cursor:pointer;position:relative;transition:background 0.2s;border:none;flex-shrink:0}
+.toggle.on{background:var(--green-bright)}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* BATCH FORM */
+.batch-form{background:var(--green-pale);border:1px dashed var(--green-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px}
+.batch-form-title{font-size:13px;font-weight:600;color:var(--green-mid);margin-bottom:12px}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 40px}
+.empty-state svg{width:64px;height:64px;stroke:var(--green-light);margin-bottom:16px}
+.empty-state h3{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:14px;color:var(--text-soft);line-height:1.6}
+
+/* GH PHOTO BG */
+.gh-card-bg[style*="background-image"]{background-color:transparent}
+
+/* BOXES count chip */
+.boxes-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.18);border-radius:6px;padding:2px 7px;font-size:10px;color:#fff;font-weight:600;margin-top:4px}
+
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal.anim{animation:slideUp 0.3s cubic-bezier(0.32,0.72,0,1)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-overlay.open{animation:fadeIn 0.2s ease}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Green<span>Track</span></div>
+  <button class="nav-add" onclick="openAddGH()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add GH
+  </button>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="home-hero">
+    <div class="home-date" id="hero-date"></div>
+    <div class="home-title">Your Greenhouses</div>
+    <div class="home-subtitle" id="hero-sub">Tap a greenhouse to manage batches</div>
+  </div>
+  <div class="home-stats">
+    <div class="stat-card"><div class="stat-num" id="stat-gh">0</div><div class="stat-label">Greenhouses</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-batches">0</div><div class="stat-label">Batches</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-harvest">0</div><div class="stat-label">Harvests Soon</div></div>
+  </div>
+
+  <div id="overdue-banner" style="display:none;margin:12px 20px 0;background:#fef0f0;border:1px solid #f5c5c5;border-radius:12px;padding:12px 14px;align-items:center;gap:10px">
+    <span style="font-size:20px">⚠️</span>
+    <div><div style="font-size:13px;font-weight:600;color:#c00000" id="overdue-text">Batches overdue</div><div style="font-size:11px;color:#a00000">Harvest these immediately</div></div>
+  </div>
+
+  <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;padding-right:20px">
+    <span>🌱 Seedling Nursery</span>
+    <button id="sow-btn" onclick="openAddSeedling()" style="background:var(--green-bright);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">+ Sow</button>
+  </div>
+  <div id="seedling-list" style="padding:0 20px 4px"></div>
+
+  <div class="section-title">Your Greenhouses</div>
+  <div class="gh-grid" id="gh-grid"></div>
+  <div id="home-empty" style="display:none" class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <h3>No Greenhouses Yet</h3>
+    <p>Tap "Add GH" above to add your first greenhouse and start tracking batches.</p>
+  </div>
+</div>
+
+<!-- SCHEDULE PAGE -->
+<div id="page-schedule" class="page">
+  <div class="home-hero" style="padding-bottom:20px">
+    <div class="home-date">Schedule</div>
+    <div class="home-title">Upcoming Events</div>
+    <div class="home-subtitle">Your sow, transplant & harvest timeline</div>
+  </div>
+  <div class="week-scroll" id="week-scroll"></div>
+  <div id="sched-list"></div>
+  <div id="sched-empty" style="display:none" class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <h3>No Events Yet</h3>
+    <p>Add a greenhouse and set batch dates to see your schedule here.</p>
+  </div>
+</div>
+
+<!-- TASKS PAGE (replaces checklist) -->
+<div id="page-checklist" class="page">
+  <div class="home-hero" style="padding-bottom:20px">
+    <div class="home-date" id="check-date"></div>
+    <div class="home-title">Tasks</div>
+    <div class="home-subtitle" id="check-progress"></div>
+  </div>
+
+  <!-- Tab switcher -->
+  <div style="display:flex;gap:0;margin:16px 20px 0;border-radius:10px;overflow:hidden;border:1.5px solid var(--border)">
+    <button id="tab-saturday" onclick="switchTaskTab('saturday')" style="flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--green-deep);color:#fff">📋 This Saturday</button>
+    <button id="tab-upcoming" onclick="switchTaskTab('upcoming')" style="flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text-mid)">📅 Upcoming</button>
+    <button id="tab-checklist" onclick="switchTaskTab('checklist')" style="flex:1;padding:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text-mid)">✅ Checklist</button>
+  </div>
+
+  <div id="tasks-saturday" style="padding:16px 20px"></div>
+  <div id="tasks-upcoming" style="padding:16px 20px;display:none"></div>
+  <div id="checklist-content" style="padding:16px 20px;display:none"></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div id="page-settings" class="page">
+  <div class="home-hero" style="padding-bottom:20px">
+    <div class="home-date">Settings</div>
+    <div class="home-title">Preferences</div>
+    <div class="home-subtitle">Manage your app settings</div>
+  </div>
+  <div class="section-title">Appearance</div>
+  <div class="settings-list">
+    <div class="settings-item">
+      <div><div class="settings-label">Dark Mode</div><div class="settings-sub">Easy on the eyes at night</div></div>
+      <button class="toggle" id="dark-mode-toggle" onclick="toggleDarkMode(this)"></button>
+    </div>
+  </div>
+  <div class="section-title">Notifications</div>
+  <div class="settings-list">
+    <div class="settings-item">
+      <div><div class="settings-label">Harvest Reminders</div><div class="settings-sub">Alert 3 days before harvest</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+    </div>
+    <div class="settings-item">
+      <div><div class="settings-label">Sowing Reminders</div><div class="settings-sub">Alert on sowing day</div></div>
+      <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+    </div>
+    <div class="settings-item">
+      <div><div class="settings-label">Weekly Summary</div><div class="settings-sub">Every Saturday morning</div></div>
+      <button class="toggle" onclick="this.classList.toggle('on')"></button>
+    </div>
+  </div>
+  <div class="section-title">Crop Settings</div>
+  <div class="settings-list">
+    <div class="settings-item">
+      <div><div class="settings-label">Grow Cycle (weeks)</div><div class="settings-sub">Default for new batches</div></div>
+      <input type="number" value="6" min="1" max="20" style="width:60px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;text-align:center;font-family:'DM Sans',sans-serif">
+    </div>
+    <div class="settings-item">
+      <div><div class="settings-label">Nursery Period (weeks)</div><div class="settings-sub">Sow to transplant</div></div>
+      <input type="number" value="2" min="1" max="8" style="width:60px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;text-align:center;font-family:'DM Sans',sans-serif">
+    </div>
+  </div>
+  <div class="section-title">Data</div>
+  <div class="settings-list">
+    <div class="settings-item">
+      <div><div class="settings-label">Reset All Data</div><div class="settings-sub">Clears all greenhouses and batches</div></div>
+      <button class="btn-danger" onclick="resetData()">Reset</button>
+    </div>
+  </div>
+  <div class="section-title">Backup & Restore</div>
+  <div class="settings-list">
+    <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:10px;padding:16px 0">
+      <div>
+        <div class="settings-label">Export Data</div>
+        <div class="settings-sub">Save all your GH data as a file — use to transfer to another device or as backup</div>
+      </div>
+      <button class="btn-primary" style="width:100%;margin:0" onclick="exportData()">📤 Export Backup File</button>
+    </div>
+    <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:10px;padding:16px 0">
+      <div>
+        <div class="settings-label">Import Data</div>
+        <div class="settings-sub">Load a previously exported backup file</div>
+      </div>
+      <button class="btn-primary" style="width:100%;margin:0;background:var(--green-bright)" onclick="document.getElementById('import-file').click()">📥 Import Backup File</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+    </div>
+  </div>
+  <div style="padding:30px 20px;text-align:center">
+    <p style="font-size:12px;color:var(--text-soft)">GreenTrack v1.0 • Made for solo growers</p>
+    <p style="font-size:11px;color:var(--text-soft);margin-top:4px">All data saved on this device</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" onclick="showPage('home',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('schedule',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Schedule</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('checklist',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span>Tasks</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('settings',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<!-- ADD GH MODAL -->
+<div class="modal-overlay" id="addGHModal">
+  <div class="modal anim">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Greenhouse</div>
+      <button class="modal-close" onclick="closeModal('addGHModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="form-label">Greenhouse Name</label>
+        <input class="form-input" id="gh-name" placeholder="e.g. GH1, North House..." type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input" id="gh-location" placeholder="e.g. Location A, Main Farm..." type="text">
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label class="form-label">Total Boxes</label>
+          <input class="form-input" id="gh-boxes" placeholder="e.g. 20" type="number" min="1">
+        </div>
+        <div>
+          <label class="form-label">Batches</label>
+          <input class="form-input" id="gh-batches" placeholder="e.g. 2" type="number" min="1" max="10">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Greenhouse Photo</label>
+        <div class="photo-upload" id="gh-photo-label" onclick="document.getElementById('gh-photo-input').click()">
+          <img id="gh-photo-preview" class="photo-preview" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="gh-photo-icon"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span id="gh-photo-span">Tap to add photo</span>
+        </div>
+        <input type="file" accept="image/*" onchange="handlePhotoUpload(this,'gh-photo-preview','gh-photo-data')" id="gh-photo-input" style="display:none">
+        <input type="hidden" id="gh-photo-data">
+      </div>
+      <button class="btn-primary" onclick="saveGH()">Add Greenhouse</button>
+    </div>
+  </div>
+</div>
+
+<!-- GH DETAIL FULL PAGE -->
+<div id="page-gh-detail" style="display:none;position:fixed;inset:0;z-index:150;background:var(--cream);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div id="detail-hero" style="position:relative;height:240px;background:var(--green-mid);flex-shrink:0">
+    <div id="detail-hero-bg" style="position:absolute;inset:0;background-size:cover;background-position:center"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,25,10,0.85) 0%,rgba(10,25,10,0.3) 50%,rgba(0,0,0,0.25) 100%)"></div>
+    <button onclick="closeGHDetail()" style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;background:rgba(0,0,0,0.35);border:none;border-radius:50px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">Back</span>
+    </button>
+    <button id="detail-delete-btn" style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;background:rgba(180,30,30,0.5);border:none;border-radius:50px;padding:8px 14px;cursor:pointer">
+      <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">Delete GH</span>
+    </button>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:20px">
+      <div id="detail-location-tag" style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px"></div>
+      <div id="detail-title" style="font-size:30px;color:#fff;line-height:1.1;font-weight:400"></div>
+      <div id="detail-subtitle" style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px"></div>
+    </div>
+  </div>
+  <div id="detail-stats-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--green-deep);padding:14px 20px;gap:10px"></div>
+  <div id="detail-body" style="padding-bottom:100px"></div>
+</div>
+
+<!-- ADD BATCH MODAL -->
+<div class="modal-overlay" id="addBatchModal">
+  <div class="modal anim">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Batch</div>
+      <button class="modal-close" onclick="closeModal('addBatchModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="form-label">Batch Name</label>
+        <input class="form-input" id="b-name" placeholder="e.g. Batch 1, Wave A..." type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Crop Type</label>
+        <div style="display:flex;gap:8px">
+          <select class="form-input" id="b-crop" onchange="onCropChange()" style="flex:1">
+            <option value="">-- Select crop --</option>
+          </select>
+          <button type="button" onclick="closeModal('addBatchModal');openModal('addCropModal')" style="background:var(--green-pale);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:18px;cursor:pointer;flex-shrink:0">+</button>
+        </div>
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label class="form-label">Boxes</label>
+          <input class="form-input" id="b-boxes" placeholder="10" type="number" min="1">
+        </div>
+        <div>
+          <label class="form-label">Holes/Box</label>
+          <input class="form-input" id="b-holes" placeholder="15" type="number" min="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sowing Date</label>
+        <input class="form-input" id="b-sow" type="date" onchange="autoFillDates()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Transplant Date <span style="font-size:10px;color:var(--text-soft)">(auto-filled)</span></label>
+        <input class="form-input" id="b-transplant" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expected Harvest Date <span style="font-size:10px;color:var(--text-soft)">(auto-filled)</span></label>
+        <input class="form-input" id="b-harvest" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price per Head (₱)</label>
+        <input class="form-input" id="b-price" placeholder="e.g. 35" type="number" min="0" step="0.01" value="35">
+      </div>
+      <input type="hidden" id="b-gh-id">
+      <button class="btn-primary" onclick="saveBatch()">Add Batch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Default crops with nursery days + grow days
+const DEFAULT_CROPS = [
+  {name:'Petchay',    nursery:14, grow:21},
+  {name:'Bokchoy',   nursery:14, grow:25},
+  {name:'Olmeitie',  nursery:14, grow:28},
+  {name:'Red Lettuce',nursery:14, grow:35},
+  {name:'Arugula',   nursery:10, grow:28},
+];
+
+function getDefaultState(){
+  return {greenhouses:[],checkTasks:{},crops:JSON.parse(JSON.stringify(DEFAULT_CROPS)),harvestLog:[]};
+}
+let state = JSON.parse(localStorage.getItem('greentrack') || 'null') || getDefaultState();
+// Migrate old data — ensure crops and harvestLog exist
+if(!state.crops) state.crops = JSON.parse(JSON.stringify(DEFAULT_CROPS));
+if(!state.harvestLog) state.harvestLog = [];
+if(!state.seedlings) state.seedlings = [];
+if(!state.darkMode) state.darkMode = false;
+if(state.darkMode) document.body.classList.add('dark');
+
+function save(){
+  try {
+    localStorage.setItem('greentrack', JSON.stringify(state));
+  } catch(e){
+    if(e.name === 'QuotaExceededError'){
+      alert('Storage full! Try using smaller photos.');
+    }
+  }
+}
+
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='home')renderHome();
+  if(id==='schedule')renderSchedule();
+  if(id==='checklist'){
+    document.getElementById('check-date').textContent=new Date().toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    switchTaskTab('saturday');
+  }
+  if(id==='settings'){
+    const t=document.getElementById('dark-mode-toggle');
+    if(t) t.classList.toggle('on', !!state.darkMode);
+  }
+}
+
+function switchTaskTab(tab){
+  ['saturday','upcoming','checklist'].forEach(t=>{
+    document.getElementById('tasks-'+t === 'tasks-checklist' ? 'checklist-content' : 'tasks-'+t).style.display = t===tab?'block':'none';
+    const btn = document.getElementById('tab-'+t);
+    if(btn){
+      btn.style.background = t===tab ? 'var(--green-deep)' : 'var(--white)';
+      btn.style.color = t===tab ? '#fff' : 'var(--text-mid)';
+    }
+  });
+  document.getElementById('check-progress').textContent='';
+  if(tab==='saturday') renderSaturdaySummary('tasks-saturday');
+  if(tab==='upcoming') renderTodayTasks('tasks-upcoming');
+  if(tab==='checklist') renderChecklist();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function openAddGH(){
+  document.getElementById('gh-name').value='';
+  document.getElementById('gh-location').value='';
+  document.getElementById('gh-boxes').value='';
+  document.getElementById('gh-batches').value='';
+  document.getElementById('gh-photo-data').value='';
+  document.getElementById('gh-photo-input').value='';
+  document.getElementById('gh-photo-preview').style.display='none';
+  document.getElementById('gh-photo-icon').style.display='';
+  document.getElementById('gh-photo-span').style.display='';
+  openModal('addGHModal');
+}
+
+function handlePhotoUpload(input,previewId,dataId){
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    // Resize & compress image using canvas before storing
+    const img=new Image();
+    img.onload=function(){
+      const MAX=600; // max width or height in px
+      let w=img.width, h=img.height;
+      if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+      else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      const preview=document.getElementById(previewId);
+      const dataEl=document.getElementById(dataId);
+      const icon=document.getElementById('gh-photo-icon');
+      const span=document.getElementById('gh-photo-span');
+      if(preview){preview.src=compressed;preview.style.display='block';}
+      if(dataEl){dataEl.value=compressed;}
+      if(icon)icon.style.display='none';
+      if(span)span.style.display='none';
+    };
+    img.onerror=function(){alert('Could not load image. Please try another photo.');};
+    img.src=e.target.result;
+  };
+  reader.onerror=function(){alert('Could not read image. Please try another photo.');};
+  reader.readAsDataURL(file);
+}
+
+function saveGH(){
+  const name=document.getElementById('gh-name').value.trim();
+  const loc=document.getElementById('gh-location').value.trim();
+  const boxes=parseInt(document.getElementById('gh-boxes').value)||0;
+  const numBatches=parseInt(document.getElementById('gh-batches').value)||0;
+  const photo=document.getElementById('gh-photo-data').value;
+  if(!name){alert('Please enter a greenhouse name');return;}
+  const gh={id:Date.now(),name,location:loc,boxes,photo,batches:[]};
+  state.greenhouses.push(gh);
+  save();
+  closeModal('addGHModal');
+  renderHome();
+}
+
+function deleteGH(idx){
+  if(!confirm('Delete this greenhouse and all its batches?'))return;
+  state.greenhouses.splice(idx,1);
+  save();
+  closeGHDetail();
+  renderHome();
+}
+
+function closeGHDetail(){
+  document.getElementById('page-gh-detail').style.display='none';
+  document.body.style.overflow='';
+}
+
+function openGHDetail(idx){
+  const gh=state.greenhouses[idx];
+  if(!gh)return;
+  const page=document.getElementById('page-gh-detail');
+  // Hero background
+  const heroBg=document.getElementById('detail-hero-bg');
+  heroBg.style.backgroundImage=gh.photo?'url('+gh.photo+')':'none';
+  heroBg.style.background=gh.photo?'':'var(--green-mid)';
+  // Text
+  document.getElementById('detail-title').textContent=gh.name;
+  document.getElementById('detail-location-tag').textContent=gh.location||'';
+  const usedBoxes=gh.batches.reduce((s,b)=>s+(parseInt(b.boxes)||0),0);
+  document.getElementById('detail-subtitle').textContent=gh.batches.length+' batch'+(gh.batches.length!==1?'es':'')+' · '+gh.boxes+' total boxes';
+  // Stats
+  const today=new Date();today.setHours(0,0,0,0);
+  const readySoon=gh.batches.filter(b=>{if(!b.harvestDate)return false;const h=new Date(b.harvestDate+'T00:00:00');const d=Math.round((h-today)/86400000);return d>=0&&d<=7;}).length;
+  const totalHoles=gh.batches.reduce((s,b)=>s+(parseInt(b.boxes)||0)*(parseInt(b.holes)||0),0);
+  document.getElementById('detail-stats-row').innerHTML=
+    statMini(gh.batches.length,'Batches')+
+    statMini(usedBoxes+'/'+gh.boxes,'Boxes Used')+
+    statMini(readySoon,'Ready Soon');
+  document.getElementById('detail-delete-btn').onclick=()=>deleteGH(idx);
+  renderDetailBody(gh);
+  page.style.display='block';
+  page.scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+
+function statMini(val,label){
+  var d=document.createElement('div');
+  d.style.cssText='background:rgba(255,255,255,0.10);border-radius:12px;padding:10px;text-align:center';
+  var num=document.createElement('div');
+  num.style.cssText='font-size:20px;font-weight:600;color:#fff;font-family:serif';
+  num.textContent=val;
+  var lbl=document.createElement('div');
+  lbl.style.cssText='font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px';
+  lbl.textContent=label;
+  d.appendChild(num);d.appendChild(lbl);
+  return d.outerHTML;
+}
+
+function renderDetailBody(gh){
+  const el=document.getElementById('detail-body');
+  const ghIdx=state.greenhouses.indexOf(gh);
+  const usedBoxes=gh.batches.reduce((s,b)=>s+(parseInt(b.boxes)||0),0);
+  let html=`<div style="padding:14px 20px 4px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:13px;color:var(--text-soft)"><b style="color:var(--text)">${gh.batches.length}</b> batches &nbsp;·&nbsp; <b style="color:var(--text)">${usedBoxes}/${gh.boxes||'?'}</b> boxes used</div>
+    <button class="btn-primary" style="width:auto;margin:0;padding:8px 16px;font-size:13px" onclick="openAddBatch(${ghIdx})">+ Add Batch</button>
+  </div>`;
+  if(gh.batches.length===0){
+    html+=`<div style="text-align:center;padding:40px 20px;color:var(--text-soft);font-size:14px">No batches yet.<br>Tap <b>+ Add Batch</b> to get started.</div>`;
+  } else {
+    html+=`<div class="batch-list">`;
+    gh.batches.forEach((b,bIdx)=>{
+      const today=new Date();today.setHours(0,0,0,0);
+      const sow=b.sowDate?new Date(b.sowDate):null;
+      const trans=b.transplantDate?new Date(b.transplantDate):null;
+      const harv=b.harvestDate?new Date(b.harvestDate):null;
+      let status='empty',statusLabel='Empty';
+      if(sow&&harv){
+        const pct=Math.min(100,Math.max(0,Math.round((today-sow)/(harv-sow)*100)));
+        const daysLeft=harv?Math.round((harv-today)/86400000):null;
+        if(today<sow){status='sowing';statusLabel='Sowing Soon';}
+        else if(daysLeft!==null&&daysLeft<=3&&daysLeft>=0){status='ready';statusLabel='Harvest Ready!';}
+        else if(today<=harv){status='growing';statusLabel='Growing';}
+        else{status='ready';statusLabel='Overdue!';}
+        const daysLeftStr=daysLeft===null?'—':daysLeft<0?'Overdue':daysLeft===0?'Today!':daysLeft+'d left';
+        html+=`<div class="batch-card">
+          <div class="batch-header" onclick="toggleBatch(this)">
+            <div>
+              <div class="batch-name">${b.name}</div>
+              <div style="font-size:11px;color:var(--text-soft);margin-top:2px">${b.crop?'<span style="background:#e8f5e9;color:#2e7d32;padding:1px 6px;border-radius:10px;font-weight:600;margin-right:4px">'+b.crop+'</span>':''}${b.boxes||0} boxes · ${b.holes||0} holes/box · ${(b.boxes||0)*(b.holes||0)} heads</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+              <span class="batch-status status-${status}">${statusLabel}</span>
+              <span style="font-size:11px;color:var(--text-soft)">${daysLeftStr}</span>
+            </div>
+          </div>
+          <div class="batch-progress"><div class="batch-progress-bar" style="width:${pct}%"></div></div>
+          <div class="batch-dates">
+            <div class="date-item"><div class="date-label">Sow</div><div class="date-val">${fmtDate(b.sowDate)}</div></div>
+            <div class="date-item"><div class="date-label">Transplant</div><div class="date-val">${fmtDate(b.transplantDate)}</div></div>
+            <div class="date-item"><div class="date-label">Harvest</div><div class="date-val ${daysLeft!==null&&daysLeft<=7?'warn':''} ${daysLeft!==null&&daysLeft<=3?'urgent':''}">${fmtDate(b.harvestDate)}</div></div>
+          </div>
+          <div style="padding:0 14px 12px;display:flex;gap:8px">
+            ${!b.harvested?`<button style="flex:1;padding:8px;background:var(--green-pale);color:var(--green-mid);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="openHarvestLog(${ghIdx},${bIdx})">🌾 Log Harvest</button>`:`<div style="flex:1;padding:8px;background:#e8f5e9;border-radius:8px;font-size:11px;text-align:center;color:#2e7d32;font-weight:600">✅ Harvested: ${b.harvested.heads} heads · ₱${b.harvested.revenue.toLocaleString()}</div>`}
+            <button style="padding:8px 12px;background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="deleteBatch(${ghIdx},${bIdx})">✕</button>
+          </div>
+        </div>`;
+      } else {
+        html+=`<div class="batch-card">
+          <div class="batch-header" onclick="toggleBatch(this)">
+            <div class="batch-name">${b.name}</div>
+            <span class="batch-status status-empty">No Dates</span>
+          </div>
+          <div class="batch-dates">
+            <div class="date-item"><div class="date-label">Sow</div><div class="date-val">${fmtDate(b.sowDate)}</div></div>
+            <div class="date-item"><div class="date-label">Transplant</div><div class="date-val">${fmtDate(b.transplantDate)}</div></div>
+            <div class="date-item"><div class="date-label">Harvest</div><div class="date-val">${fmtDate(b.harvestDate)}</div></div>
+          </div>
+          <div style="padding:0 14px 12px">
+            <button style="width:100%;padding:8px;background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="deleteBatch(${ghIdx},${bIdx})">Delete</button>
+          </div>
+        </div>`;
+      }
+    });
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+function toggleBatch(header){
+  const dates=header.nextElementSibling?.nextElementSibling;
+  if(dates)dates.style.display=dates.style.display==='none'?'grid':'';
+}
+
+function deleteBatch(ghIdx,bIdx){
+  if(!confirm('Delete this batch?'))return;
+  const gh=state.greenhouses[ghIdx];
+  if(!gh)return;
+  gh.batches.splice(bIdx,1);
+  save();
+  renderDetailBody(gh);
+  renderHome();
+}
+
+function populateCropDropdown(selId){
+  const sel=document.getElementById(selId||'b-crop');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Select crop --</option>';
+  (state.crops||[]).forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.name;
+    opt.textContent=c.name;
+    sel.appendChild(opt);
+  });
+  if(cur) sel.value=cur;
+}
+
+function onCropChange(){
+  const sel=document.getElementById('b-crop');
+  const crop=(state.crops||[]).find(c=>c.name===sel.value);
+  if(crop && document.getElementById('b-sow').value){
+    autoFillDates();
+  }
+}
+
+function autoFillDates(){
+  const sowVal=document.getElementById('b-sow').value;
+  if(!sowVal) return;
+  const sel=document.getElementById('b-crop');
+  const crop=(state.crops||[]).find(c=>c.name===sel.value);
+  const nursery=crop?crop.nursery:14;
+  const grow=crop?crop.grow:30;
+  const sow=new Date(sowVal+'T00:00:00');
+  const trans=new Date(sow);trans.setDate(trans.getDate()+nursery);
+  const harv=new Date(trans);harv.setDate(harv.getDate()+grow);
+  document.getElementById('b-transplant').value=trans.toISOString().split('T')[0];
+  document.getElementById('b-harvest').value=harv.toISOString().split('T')[0];
+}
+
+function openAddBatch(ghIdx){
+  document.getElementById('b-gh-id').value=ghIdx;
+  const gh=state.greenhouses[ghIdx];
+  const n=gh?gh.batches.length+1:1;
+  document.getElementById('b-name').value='Batch '+n;
+  document.getElementById('b-boxes').value='';
+  document.getElementById('b-holes').value='15';
+  document.getElementById('b-price').value='35';
+  populateCropDropdown('b-crop');
+  document.getElementById('b-crop').value='';
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('b-sow').value=today;
+  const t=new Date();t.setDate(t.getDate()+14);
+  document.getElementById('b-transplant').value=t.toISOString().split('T')[0];
+  const h=new Date();h.setDate(h.getDate()+45);
+  document.getElementById('b-harvest').value=h.toISOString().split('T')[0];
+  openModal('addBatchModal');
+}
+
+function saveCustomCrop(){
+  const name=document.getElementById('new-crop-name').value.trim();
+  const nursery=parseInt(document.getElementById('new-crop-nursery').value)||14;
+  const grow=parseInt(document.getElementById('new-crop-grow').value)||30;
+  if(!name){alert('Enter a crop name');return;}
+  if((state.crops||[]).find(c=>c.name.toLowerCase()===name.toLowerCase())){alert('Crop already exists');return;}
+  state.crops.push({name,nursery,grow});
+  save();
+  // Refresh whichever crop dropdown is currently visible
+  ['b-crop','s-crop'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && el.closest('.modal-overlay.open')) populateCropDropdown(id);
+    else if(el) populateCropDropdown(id);
+  });
+  if(document.getElementById('b-crop')) document.getElementById('b-crop').value=name;
+  if(document.getElementById('s-crop')) document.getElementById('s-crop').value=name;
+  document.getElementById('new-crop-name').value='';
+  closeModal('addCropModal');
+  // Reopen whichever modal triggered this
+  const bModal = document.getElementById('addBatchModal');
+  const sModal = document.getElementById('addSeedlingModal');
+  // Check which one has the crop select populated
+  if(document.getElementById('s-crop') && document.getElementById('s-crop').options.length > 1){
+    openModal('addSeedlingModal');
+  } else {
+    openModal('addBatchModal');
+  }
+}
+
+function saveBatch(){
+  const ghIdx=parseInt(document.getElementById('b-gh-id').value);
+  const gh=state.greenhouses[ghIdx];
+  if(!gh)return;
+  const name=document.getElementById('b-name').value.trim()||('Batch '+(gh.batches.length+1));
+  const batch={
+    id:Date.now(),
+    name,
+    crop:document.getElementById('b-crop').value||'',
+    boxes:parseInt(document.getElementById('b-boxes').value)||0,
+    holes:parseInt(document.getElementById('b-holes').value)||0,
+    pricePerHead:parseFloat(document.getElementById('b-price').value)||35,
+    sowDate:document.getElementById('b-sow').value,
+    transplantDate:document.getElementById('b-transplant').value,
+    harvestDate:document.getElementById('b-harvest').value,
+    harvested:null
+  };
+  gh.batches.push(batch);
+  save();
+  closeModal('addBatchModal');
+  renderDetailBody(gh);
+  renderHome();
+}
+
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d+'T00:00:00');
+  return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+}
+
+function fmtDateLong(d){
+  if(!d)return '—';
+  const dt=new Date(d+'T00:00:00');
+  return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+}
+
+function renderHome(){
+  const today=new Date();
+  document.getElementById('hero-date').textContent=today.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  renderOverdueBanner();
+  renderSeedlings();
+
+  const ghs=state.greenhouses;
+  document.getElementById('stat-gh').textContent=ghs.length;
+  const allBatches=ghs.flatMap(g=>g.batches);
+  document.getElementById('stat-batches').textContent=allBatches.length;
+  const soon=allBatches.filter(b=>{
+    if(!b.harvestDate)return false;
+    const h=new Date(b.harvestDate+'T00:00:00');
+    const d=Math.round((h-today)/86400000);
+    return d>=0&&d<=7;
+  }).length;
+  document.getElementById('stat-harvest').textContent=soon;
+
+  // GH grid
+  const grid=document.getElementById('gh-grid');
+  const empty=document.getElementById('home-empty');
+  if(ghs.length===0){grid.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  grid.innerHTML=ghs.map((gh,idx)=>{
+    const bg=gh.photo?`background-image:url(${gh.photo})`:`background:var(--green-mid)`;
+    const readySoon=gh.batches.filter(b=>{if(!b.harvestDate)return false;const h=new Date(b.harvestDate+'T00:00:00');const d=Math.round((h-today)/86400000);return d>=0&&d<=7;}).length;
+    return `<div class="gh-card" onclick="openGHDetail(${idx})" style="cursor:pointer">
+      <div class="gh-card-bg" style="${bg}"></div>
+      <div class="gh-card-overlay"></div>
+      ${readySoon>0?`<div class="gh-card-badge">🌿 ${readySoon} ready</div>`:''}
+      <div class="gh-card-body">
+        <div class="gh-card-name">${gh.name}</div>
+        <div class="gh-card-meta">${gh.location||'No location'}</div>
+        <div class="boxes-chip">${gh.batches.length} batch${gh.batches.length!==1?'es':''} · ${gh.boxes||0} boxes</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Today's tasks
+  renderTodayTasks();
+}
+
+function renderTodayTasks(containerId){
+  const today=new Date();today.setHours(0,0,0,0);
+  const container=document.getElementById(containerId||'tasks-upcoming');
+  const tasks=[];
+  state.greenhouses.forEach(gh=>{
+    gh.batches.forEach(b=>{
+      if(b.sowDate){
+        const d=new Date(b.sowDate+'T00:00:00');
+        const diff=Math.round((d-today)/86400000);
+        if(diff===0)tasks.push({type:'sow',label:`Sow ${b.name}`,gh:gh.name,diff});
+        else if(diff>0&&diff<=3)tasks.push({type:'sow',label:`Sow ${b.name} in ${diff}d`,gh:gh.name,diff});
+      }
+      if(b.transplantDate){
+        const d=new Date(b.transplantDate+'T00:00:00');
+        const diff=Math.round((d-today)/86400000);
+        if(diff===0)tasks.push({type:'plant',label:`Transplant ${b.name}`,gh:gh.name,diff});
+        else if(diff>0&&diff<=3)tasks.push({type:'plant',label:`Transplant ${b.name} in ${diff}d`,gh:gh.name,diff});
+      }
+      if(b.harvestDate){
+        const d=new Date(b.harvestDate+'T00:00:00');
+        const diff=Math.round((d-today)/86400000);
+        if(diff===0)tasks.push({type:'harvest',label:`Harvest ${b.name}`,gh:gh.name,diff});
+        else if(diff>0&&diff<=7)tasks.push({type:'harvest',label:`Harvest ${b.name} in ${diff}d`,gh:gh.name,diff});
+        else if(diff<0)tasks.push({type:'harvest',label:`Harvest ${b.name} (overdue!)`,gh:gh.name,diff});
+      }
+    });
+  });
+  if(tasks.length===0){
+    container.innerHTML=`<div style="padding:16px 20px"><div style="background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px;text-align:center;color:var(--text-soft);font-size:13px">No urgent tasks for today 🌱</div></div>`;
+    return;
+  }
+  const tagMap={harvest:'tag-harvest',plant:'tag-plant',sow:'tag-sow'};
+  const labelMap={harvest:'Harvest',plant:'Transplant',sow:'Sow'};
+  const key='check-'+today.toISOString().split('T')[0];
+  if(!state.checkTasks[key])state.checkTasks[key]={};
+  container.innerHTML=`<div class="today-card">
+    <div class="today-header">
+      <div class="today-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+      <div class="today-header-text"><h3>Upcoming Tasks</h3><p>${tasks.length} task${tasks.length!==1?'s':''} need attention</p></div>
+    </div>
+    <div class="today-tasks">
+      ${tasks.map((t,i)=>{
+        const done=state.checkTasks[key]&&state.checkTasks[key][i];
+        return `<div class="task-row" onclick="toggleTask('${key}',${i},this)">
+          <div class="task-check ${done?'done':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-text ${done?'done':''}">${t.label} <span style="font-size:11px;color:var(--green-mid);font-weight:600">${t.gh}</span></div>
+          <span class="task-tag ${tagMap[t.type]}">${labelMap[t.type]}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function toggleTask(key,idx,row){
+  if(!state.checkTasks[key])state.checkTasks[key]={};
+  state.checkTasks[key][idx]=!state.checkTasks[key][idx];
+  save();
+  const check=row.querySelector('.task-check');
+  const text=row.querySelector('.task-text');
+  check.classList.toggle('done');
+  text.classList.toggle('done');
+}
+
+function renderSchedule(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const allEvents=[];
+  state.greenhouses.forEach(gh=>{
+    gh.batches.forEach(b=>{
+      if(b.sowDate)allEvents.push({date:b.sowDate,type:'sow',label:`Sow: ${b.name}`,gh:gh.name});
+      if(b.transplantDate)allEvents.push({date:b.transplantDate,type:'plant',label:`Transplant: ${b.name}`,gh:gh.name});
+      if(b.harvestDate)allEvents.push({date:b.harvestDate,type:'harvest',label:`Harvest: ${b.name}`,gh:gh.name});
+    });
+  });
+  allEvents.sort((a,b)=>a.date.localeCompare(b.date));
+  const empty=document.getElementById('sched-empty');
+  const list=document.getElementById('sched-list');
+  if(allEvents.length===0){empty.style.display='';list.innerHTML='';document.getElementById('week-scroll').innerHTML='';return;}
+  empty.style.display='none';
+
+  // Week chips — next 8 weeks
+  const weeks=[];
+  for(let i=0;i<8;i++){
+    const d=new Date(today);d.setDate(d.getDate()+i*7);
+    const label=i===0?'This Week':i===1?'Next Week':`Week +${i}`;
+    weeks.push({label,date:d});
+  }
+  document.getElementById('week-scroll').innerHTML=weeks.map((w,i)=>
+    `<div class="week-chip ${i===0?'active':''}" onclick="filterWeek(this,${w.date.getTime()})">${w.label}</div>`
+  ).join('');
+
+  renderSchedWeek(today.getTime(),allEvents);
+}
+
+function filterWeek(chip,ts){
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  const today=new Date();today.setHours(0,0,0,0);
+  const allEvents=[];
+  state.greenhouses.forEach(gh=>{
+    gh.batches.forEach(b=>{
+      if(b.sowDate)allEvents.push({date:b.sowDate,type:'sow',label:`Sow: ${b.name}`,gh:gh.name});
+      if(b.transplantDate)allEvents.push({date:b.transplantDate,type:'plant',label:`Transplant: ${b.name}`,gh:gh.name});
+      if(b.harvestDate)allEvents.push({date:b.harvestDate,type:'harvest',label:`Harvest: ${b.name}`,gh:gh.name});
+    });
+  });
+  allEvents.sort((a,b)=>a.date.localeCompare(b.date));
+  renderSchedWeek(ts,allEvents);
+}
+
+function renderSchedWeek(startTs,allEvents){
+  const start=new Date(startTs);start.setHours(0,0,0,0);
+  const end=new Date(start);end.setDate(end.getDate()+7);
+  const week=allEvents.filter(e=>{const d=new Date(e.date+'T00:00:00');return d>=start&&d<end;});
+  const list=document.getElementById('sched-list');
+  if(week.length===0){list.innerHTML=`<div style="text-align:center;padding:30px 20px;color:var(--text-soft);font-size:14px">No events this week</div>`;return;}
+  const dotMap={harvest:'dot-harvest',plant:'dot-plant',sow:'dot-sow'};
+  list.innerHTML=week.map(e=>`<div class="sched-card">
+    <div class="sched-dot ${dotMap[e.type]}"></div>
+    <div class="sched-info">
+      <h4>${e.label}</h4>
+      <p>${fmtDateLong(e.date)}</p>
+      <div class="sched-gh">${e.gh}</div>
+    </div>
+  </div>`).join('');
+}
+
+function renderChecklist(){
+  const today=new Date();
+  document.getElementById('check-date').textContent=today.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const key='sat-'+today.toISOString().split('T')[0];
+  if(!state.checkTasks[key])state.checkTasks[key]={};
+  // Find next Monday for seedling sunlight reminder
+  const todayD = new Date();
+  const daysUntilMon = (8 - todayD.getDay()) % 7 || 7;
+  const monDate = new Date(todayD);
+  monDate.setDate(todayD.getDate() + daysUntilMon);
+  const monStr = monDate.toLocaleDateString('en-PH',{weekday:'long',month:'short',day:'numeric'});
+
+  const tasks=[
+    {label:'Sow new seedling tray',tag:'sow',note:'Every Saturday — log it in the Seedling Nursery on Home'},
+    {label:'Water nursery tray',tag:'mix',note:'1 mL nutrient A+B per 0.5 L water'},
+    {label:'Keep seedlings in dark — 1 to 2 days incubation',tag:'sow',note:'Cover tray, no sunlight yet'},
+    {label:'Move seedlings to sunlight on '+monStr,tag:'sow',note:'After 2 days incubation — place under grow light or outdoor shade'},
+    {label:'Harvest mature heads from current batch',tag:'harvest',note:'From week 5 onward only'},
+    {label:'Count & record heads harvested per GH',tag:'harvest',note:'Log in app — batch — Log Harvest'},
+    {label:'Rinse harvested boxes with water',tag:'plant',note:'Flush old roots, let dry before refilling'},
+    {label:'Mix nutrient drum for this week',tag:'mix',note:'16L water + 32mL Nut A + 32mL Nut B per box'},
+    {label:'Transplant seedlings into boxes',tag:'plant',note:'GH1 to GH2 to GH3 order'},
+    {label:'Update app with this week data',tag:'mix',note:'Log harvest, check batch dates'},
+    {label:'Photo of each GH for progress record',tag:'sow',note:'Optional but recommended'},
+  ];
+  const done=Object.values(state.checkTasks[key]||{}).filter(Boolean).length;
+  document.getElementById('check-progress').textContent=`${done} of ${tasks.length} tasks done`;
+  const tagMap={harvest:'tag-harvest',plant:'tag-plant',sow:'tag-sow',mix:'tag-mix'};
+  const labelMap={harvest:'Harvest',plant:'Transplant',sow:'Sow',mix:'Mix'};
+  document.getElementById('checklist-content').innerHTML=`
+    <div style="background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden">
+      ${tasks.map((t,i)=>{
+        const isDone=state.checkTasks[key][i];
+        return `<div class="task-row" onclick="toggleSatTask('${key}',${i},this,${tasks.length})">
+          <div class="task-check ${isDone?'done':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div style="flex:1">
+            <div class="task-text ${isDone?'done':''}">${t.label}</div>
+            ${t.note?`<div style="font-size:11px;color:var(--text-soft);margin-top:2px">${t.note}</div>`:''}
+          </div>
+          <span class="task-tag ${tagMap[t.tag]}">${labelMap[t.tag]}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:16px;background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Progress</div>
+      <div style="background:var(--border);border-radius:4px;height:8px;margin-bottom:8px"><div style="height:100%;border-radius:4px;background:var(--green-bright);width:${Math.round(done/tasks.length*100)}%;transition:width 0.3s"></div></div>
+      <div style="font-size:13px;color:var(--text-soft)">${done} of ${tasks.length} tasks complete</div>
+    </div>`;
+}
+
+function toggleSatTask(key,idx,row,total){
+  if(!state.checkTasks[key])state.checkTasks[key]={};
+  state.checkTasks[key][idx]=!state.checkTasks[key][idx];
+  save();
+  const check=row.querySelector('.task-check');
+  const text=row.querySelector('.task-text');
+  check.classList.toggle('done');
+  text.classList.toggle('done');
+  const done=Object.values(state.checkTasks[key]).filter(Boolean).length;
+  document.getElementById('check-progress').textContent=`${done} of ${total} tasks done`;
+  const bar=document.querySelector('#checklist-content .batch-progress-bar')||document.querySelector('#checklist-content [style*="background:var(--green-bright)"]');
+  const prog=document.querySelectorAll('#checklist-content [style*="width:"]');
+  if(prog.length>0){prog[prog.length-1].style.width=Math.round(done/total*100)+'%';}
+}
+
+function resetData(){
+  if(!confirm('This will delete ALL greenhouses and batches. Are you sure?'))return;
+  state={greenhouses:[],checkTasks:{}};
+  save();
+  renderHome();
+}
+
+
+function exportData(){
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = 'greentrack-backup-' + date + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  if(!confirm('This will replace ALL your current data. Are you sure?')) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const imported = JSON.parse(e.target.result);
+      if(!imported.greenhouses) throw new Error('Invalid backup file');
+      state = imported;
+      save();
+      renderHome();
+      alert('✅ Data imported successfully!');
+    } catch(err){
+      alert('❌ Could not read backup file. Make sure it is a valid GreenTrack export.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ── DARK MODE ────────────────────────────────────────────────────────────────
+function toggleDarkMode(btn){
+  state.darkMode = !state.darkMode;
+  document.body.classList.toggle('dark', state.darkMode);
+  btn.classList.toggle('on', state.darkMode);
+  save();
+}
+
+// ── SEEDLING NURSERY ─────────────────────────────────────────────────────────
+function openAddSeedling(){
+  populateCropDropdown('s-crop');
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('s-sow-datetime').value = now.toISOString().slice(0,16);
+  document.getElementById('s-trays').value = '1';
+  document.getElementById('s-seeds').value = '50';
+  document.getElementById('s-notes').value = '';
+  openModal('addSeedlingModal');
+}
+
+function saveSeedling(){
+  const crop = document.getElementById('s-crop').value;
+  const trays = parseInt(document.getElementById('s-trays').value)||1;
+  const seeds = parseInt(document.getElementById('s-seeds').value)||50;
+  const sowDT = document.getElementById('s-sow-datetime').value;
+  const notes = document.getElementById('s-notes').value.trim();
+  if(!crop){alert('Please select a crop type');return;}
+  if(!sowDT){alert('Please set a sow date');return;}
+  const sowMs = new Date(sowDT).getTime();
+  const dueMs = sowMs + (2 * 24 * 60 * 60 * 1000); // 2 days incubation
+  const seedling = {id: Date.now(), crop, trays, seeds, sowDT, dueMs, notes, done: false};
+  if(!state.seedlings) state.seedlings = [];
+  state.seedlings.unshift(seedling);
+  save();
+  scheduleSeedlingNotification(seedling);
+  closeModal('addSeedlingModal');
+  renderHome();
+}
+
+function scheduleSeedlingNotification(seedling){
+  if(!('Notification' in window)) return;
+  const msUntilDue = seedling.dueMs - Date.now();
+  if(msUntilDue <= 0) return;
+  Notification.requestPermission().then(perm => {
+    if(perm !== 'granted') return;
+    setTimeout(() => {
+      new Notification('🌱 Seedlings Ready!', {
+        body: seedling.crop + ' seedlings are ready to transfer to the nursery tray!',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>'
+      });
+    }, msUntilDue);
+  });
+}
+
+function checkSeedlingAlerts(){
+  const now = Date.now();
+  (state.seedlings||[]).forEach(s => {
+    if(!s.done && s.dueMs <= now){
+      // Show in-app alert too (handled in renderSeedlings)
+    }
+  });
+}
+
+function markSeedlingDone(idx){
+  state.seedlings[idx].done = true;
+  save();
+  renderHome();
+}
+
+function deleteSeedling(idx){
+  state.seedlings.splice(idx,1);
+  save();
+  renderHome();
+}
+
+function renderSeedlings(){
+  if(!state.seedlings) state.seedlings = [];
+  const container = document.getElementById('seedling-list');
+  if(!container) return;
+  const now = Date.now();
+  const active = state.seedlings.filter(s=>!s.done);
+  if(active.length === 0){
+    container.innerHTML = '<div style="padding:8px 0 4px;font-size:13px;color:var(--text-soft)">No seedlings sowing right now. Tap <b>+ Sow</b> to add.</div>';
+    return;
+  }
+  container.innerHTML = active.map((s,i)=>{
+    const realIdx = state.seedlings.indexOf(s);
+    const dueDate = new Date(s.dueMs);
+    const msLeft = s.dueMs - now;
+    const isReady = msLeft <= 0;
+    const hoursLeft = Math.max(0, Math.ceil(msLeft / 3600000));
+    const dueStr = isReady ? '✅ READY NOW' : (hoursLeft < 24 ? hoursLeft+'h left' : Math.ceil(msLeft/86400000)+'d left');
+    const cardBg = isReady ? '#e8f5e9' : 'var(--white)';
+    const borderCol = isReady ? '#4a9b4a' : 'var(--border)';
+    const pct = Math.min(100, Math.max(0, Math.round((1 - msLeft/(2*24*3600*1000))*100)));
+    return `<div style="background:${cardBg};border:1.5px solid ${borderCol};border-radius:12px;padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">${s.crop}</span>
+          <span style="font-size:11px;color:var(--text-soft);margin-left:8px">${s.trays} tray${s.trays>1?'s':''} · ${s.seeds} seeds/tray</span>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:${isReady?'#2e7d32':'var(--text-mid)'};padding:3px 8px;background:${isReady?'#c8e6c9':'var(--green-pale)'};border-radius:20px">${dueStr}</span>
+      </div>
+      <div style="background:var(--border);border-radius:3px;height:4px;margin-bottom:8px">
+        <div style="height:100%;border-radius:3px;background:${isReady?'#4a9b4a':'var(--amber)'};width:${pct}%"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:var(--text-soft)">Sown: ${new Date(s.sowDT).toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})} ${s.notes?'· '+s.notes:''}</span>
+        <div style="display:flex;gap:6px">
+          ${isReady?`<button onclick="markSeedlingDone(${realIdx})" style="background:#4a9b4a;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✓ Done</button>`:''}
+          <button onclick="deleteSeedling(${realIdx})" style="background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── OVERDUE BADGE ─────────────────────────────────────────────────────────────
+function renderOverdueBanner(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const overdue = [];
+  state.greenhouses.forEach(gh=>{
+    gh.batches.forEach(b=>{
+      if(!b.harvestDate||b.harvested) return;
+      const h = new Date(b.harvestDate+'T00:00:00');
+      if(h < today) overdue.push(gh.name+' – '+b.name);
+    });
+  });
+  const banner = document.getElementById('overdue-banner');
+  if(!banner) return;
+  if(overdue.length > 0){
+    banner.style.display = 'flex';
+    document.getElementById('overdue-text').textContent = overdue.length+' batch'+(overdue.length>1?'es':'')+' overdue: '+overdue.join(', ');
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ── SATURDAY SUMMARY ─────────────────────────────────────────────────────────
+function renderSaturdaySummary(containerId){
+  const el = document.getElementById(containerId||'tasks-saturday');
+  if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  // Find next Saturday
+  const sat = new Date(today);
+  const day = sat.getDay();
+  const diff = day === 6 ? 0 : (6 - day);
+  sat.setDate(sat.getDate() + diff);
+  const satEnd = new Date(sat); satEnd.setDate(satEnd.getDate()+1);
+
+  const tasks = [];
+  state.greenhouses.forEach(gh=>{
+    gh.batches.forEach(b=>{
+      // Harvest due on or before Saturday
+      if(b.harvestDate && !b.harvested){
+        const h = new Date(b.harvestDate+'T00:00:00');
+        if(h <= sat){
+          tasks.push({type:'harvest', gh:gh.name, batch:b.name, crop:b.crop||'', boxes:b.boxes||0, holes:b.holes||0});
+        }
+      }
+      // Transplant due on Saturday
+      if(b.transplantDate){
+        const t = new Date(b.transplantDate+'T00:00:00');
+        if(t >= today && t <= sat){
+          tasks.push({type:'transplant', gh:gh.name, batch:b.name, crop:b.crop||'', boxes:b.boxes||0});
+        }
+      }
+      // Sow due on Saturday
+      if(b.sowDate){
+        const s = new Date(b.sowDate+'T00:00:00');
+        if(s >= today && s <= sat){
+          tasks.push({type:'sow', gh:gh.name, batch:b.name, crop:b.crop||''});
+        }
+      }
+    });
+  });
+
+  const satLabel = diff === 0 ? 'Today (Saturday)' : 'This Saturday, '+sat.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+
+  if(tasks.length === 0){
+    el.innerHTML = `<div style="margin:0 20px 8px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text-soft)">✅ Nothing due this Saturday — you're all good!</div>`;
+    return;
+  }
+
+  const tagColors = {harvest:'#fff3e0|#e65100', transplant:'#e8f5e9|#2e7d32', sow:'#e3f2fd|#1565c0'};
+  const icons = {harvest:'🌾', transplant:'🌿', sow:'🌱'};
+  const totalBoxes = tasks.filter(t=>t.type==='harvest'||t.type==='transplant').reduce((s,t)=>s+(t.boxes||0),0);
+
+  el.innerHTML = `<div style="margin:0 20px 8px;background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <div style="background:var(--green-deep);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="color:#fff;font-size:13px;font-weight:600">${satLabel}</span>
+      <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px">${tasks.length} tasks · ${totalBoxes} boxes</span>
+    </div>
+    ${tasks.map(t=>{
+      const [bg,col] = (tagColors[t.type]||'#f5f5f5|#333').split('|');
+      const detail = t.type==='harvest' ? t.boxes+' boxes, '+((t.boxes||0)*(t.holes||0))+' heads' :
+                     t.type==='transplant' ? t.boxes+' boxes' : 'Sow seeds';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--green-pale)">
+        <span style="font-size:18px">${icons[t.type]}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${t.gh} — ${t.batch}</div>
+          <div style="font-size:11px;color:var(--text-soft)">${t.crop ? t.crop+' · ':'' }${detail}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${bg};color:${col}">${t.type.toUpperCase()}</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// Re-schedule all pending seedling notifications on app load
+function reScheduleAllNotifications(){
+  if(!('Notification' in window)) return;
+  const now = Date.now();
+  (state.seedlings||[]).filter(s=>!s.done && s.dueMs > now).forEach(s=>scheduleSeedlingNotification(s));
+}
+
+// ── HARVEST LOG ──────────────────────────────────────────────────────────────
+function openHarvestLog(ghIdx, bIdx){
+  const gh = state.greenhouses[ghIdx];
+  const b = gh && gh.batches[bIdx];
+  if(!b) return;
+  const expected = (b.boxes||0)*(b.holes||0);
+  document.getElementById('harvest-log-info').innerHTML =
+    '<b>'+gh.name+' — '+b.name+'</b><br>'+
+    (b.crop?'Crop: '+b.crop+'<br>':'') +
+    'Expected: '+(b.boxes||0)+' boxes × '+(b.holes||0)+' holes = <b>'+expected+' heads</b>';
+  document.getElementById('hl-heads').value = expected;
+  document.getElementById('hl-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('hl-gh-idx').value = ghIdx;
+  document.getElementById('hl-batch-idx').value = bIdx;
+  openModal('harvestLogModal');
+}
+
+function saveHarvestLog(){
+  const ghIdx = parseInt(document.getElementById('hl-gh-idx').value);
+  const bIdx = parseInt(document.getElementById('hl-batch-idx').value);
+  const heads = parseInt(document.getElementById('hl-heads').value)||0;
+  const date = document.getElementById('hl-date').value;
+  const gh = state.greenhouses[ghIdx];
+  const b = gh && gh.batches[bIdx];
+  if(!b) return;
+  const price = b.pricePerHead||35;
+  const revenue = heads * price;
+  b.harvested = {heads, date, revenue};
+  if(!state.harvestLog) state.harvestLog = [];
+  state.harvestLog.push({date, ghName:gh.name, batchName:b.name, crop:b.crop||'', heads, revenue, pricePerHead:price});
+  save();
+  closeModal('harvestLogModal');
+  renderDetailBody(gh);
+  renderHome();
+}
+
+// Init
+renderHome();
+reScheduleAllNotifications();
+checkSeedlingAlerts();
+</script>
+
+
+<!-- ADD SEEDLING MODAL -->
+<div class="modal-overlay" id="addSeedlingModal">
+  <div class="modal anim">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🌱 Sow Seedlings</div>
+      <button class="modal-close" onclick="closeModal('addSeedlingModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="form-label">Crop Type</label>
+        <div style="display:flex;gap:8px">
+          <select class="form-input" id="s-crop" style="flex:1">
+            <option value="">-- Select crop --</option>
+          </select>
+          <button type="button" onclick="closeModal('addSeedlingModal');openModal('addCropModal')" style="background:var(--green-pale);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:18px;cursor:pointer;flex-shrink:0">+</button>
+        </div>
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label class="form-label">Trays</label>
+          <input class="form-input" id="s-trays" placeholder="1" type="number" min="1" value="1">
+        </div>
+        <div>
+          <label class="form-label">Seeds/Tray</label>
+          <input class="form-input" id="s-seeds" placeholder="50" type="number" min="1" value="50">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sow Date &amp; Time</label>
+        <input class="form-input" id="s-sow-datetime" type="datetime-local">
+      </div>
+      <div style="background:var(--green-pale);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text-soft);margin-bottom:16px">
+        &#9200; Alert fires after <b>2 days</b> — move seedlings to sunlight on Monday
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <input class="form-input" id="s-notes" placeholder="e.g. using new batch of seeds" type="text">
+      </div>
+      <button class="btn-primary" onclick="saveSeedling()">Save &amp; Set Alarm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CUSTOM CROP MODAL -->
+<div class="modal-overlay" id="addCropModal">
+  <div class="modal anim">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Add Crop Type</div>
+      <button class="modal-close" onclick="closeModal('addCropModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="form-label">Crop Name</label>
+        <input class="form-input" id="new-crop-name" placeholder="e.g. Spinach" type="text">
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label class="form-label">Nursery Days</label>
+          <input class="form-input" id="new-crop-nursery" placeholder="14" type="number" min="1" value="14">
+        </div>
+        <div>
+          <label class="form-label">Grow Days</label>
+          <input class="form-input" id="new-crop-grow" placeholder="30" type="number" min="1" value="30">
+        </div>
+      </div>
+      <div style="background:var(--green-pale);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text-soft);margin-bottom:16px">
+        Nursery Days = sow to transplant &nbsp;&#183;&nbsp; Grow Days = transplant to harvest
+      </div>
+      <button class="btn-primary" onclick="saveCustomCrop()">Add Crop</button>
+    </div>
+  </div>
+</div>
+
+<!-- HARVEST LOG MODAL -->
+<div class="modal-overlay" id="harvestLogModal">
+  <div class="modal anim">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Log Harvest</div>
+      <button class="modal-close" onclick="closeModal('harvestLogModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-section">
+      <div id="harvest-log-info" style="background:var(--green-pale);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--text-mid)"></div>
+      <div class="form-group">
+        <label class="form-label">Actual Heads Harvested</label>
+        <input class="form-input" id="hl-heads" placeholder="e.g. 280" type="number" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Harvest Date</label>
+        <input class="form-input" id="hl-date" type="date">
+      </div>
+      <input type="hidden" id="hl-gh-idx">
+      <input type="hidden" id="hl-batch-idx">
+      <button class="btn-primary" onclick="saveHarvestLog()">Save Harvest</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
