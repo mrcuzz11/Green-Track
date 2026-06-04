@@ -429,6 +429,7 @@ html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;c
         <input type="file" accept="image/*" onchange="handlePhotoUpload(this,'gh-photo-preview','gh-photo-data')" id="gh-photo-input" style="display:none">
         <input type="hidden" id="gh-photo-data">
       </div>
+      <input type="hidden" id="gh-edit-idx" value="-1">
       <button class="btn-primary" onclick="saveGH()">Add Greenhouse</button>
     </div>
   </div>
@@ -443,9 +444,14 @@ html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;c
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">Back</span>
     </button>
-    <button id="detail-delete-btn" style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;background:rgba(180,30,30,0.5);border:none;border-radius:50px;padding:8px 14px;cursor:pointer">
-      <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">Delete GH</span>
-    </button>
+    <div style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;display:flex;gap:8px">
+      <button id="detail-edit-btn" style="background:rgba(255,255,255,0.25);border:none;border-radius:50px;padding:8px 14px;cursor:pointer">
+        <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">✏️ Edit</span>
+      </button>
+      <button id="detail-delete-btn" style="background:rgba(180,30,30,0.5);border:none;border-radius:50px;padding:8px 14px;cursor:pointer">
+        <span style="color:#fff;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif">Delete</span>
+      </button>
+    </div>
     <div style="position:absolute;bottom:0;left:0;right:0;padding:20px">
       <div id="detail-location-tag" style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px"></div>
       <div id="detail-title" style="font-size:30px;color:#fff;line-height:1.1;font-weight:400"></div>
@@ -507,6 +513,7 @@ html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;c
         <input class="form-input" id="b-price" placeholder="e.g. 35" type="number" min="0" step="0.01" value="35">
       </div>
       <input type="hidden" id="b-gh-id">
+      <input type="hidden" id="b-edit-idx" value="-1">
       <button class="btn-primary" onclick="saveBatch()">Add Batch</button>
     </div>
   </div>
@@ -589,6 +596,9 @@ function openAddGH(){
   document.getElementById('gh-photo-preview').style.display='none';
   document.getElementById('gh-photo-icon').style.display='';
   document.getElementById('gh-photo-span').style.display='';
+  document.getElementById('gh-edit-idx').value='-1';
+  document.querySelector('#addGHModal .modal-title').textContent='Add Greenhouse';
+  document.querySelector('#addGHModal .btn-primary').textContent='Add Greenhouse';
   openModal('addGHModal');
 }
 
@@ -628,14 +638,58 @@ function saveGH(){
   const name=document.getElementById('gh-name').value.trim();
   const loc=document.getElementById('gh-location').value.trim();
   const boxes=parseInt(document.getElementById('gh-boxes').value)||0;
-  const numBatches=parseInt(document.getElementById('gh-batches').value)||0;
   const photo=document.getElementById('gh-photo-data').value;
   if(!name){alert('Please enter a greenhouse name');return;}
-  const gh={id:Date.now(),name,location:loc,boxes,photo,batches:[]};
-  state.greenhouses.push(gh);
-  save();
-  closeModal('addGHModal');
-  renderHome();
+  const editIdx=parseInt(document.getElementById('gh-edit-idx').value);
+  if(editIdx>=0){
+    // Edit existing
+    const gh=state.greenhouses[editIdx];
+    gh.name=name;
+    gh.location=loc;
+    gh.boxes=boxes;
+    if(photo) gh.photo=photo;
+    save();
+    closeModal('addGHModal');
+    openGHDetail(editIdx);
+    renderHome();
+  } else {
+    // Add new
+    const gh={id:Date.now(),name,location:loc,boxes,photo,batches:[]};
+    state.greenhouses.push(gh);
+    save();
+    closeModal('addGHModal');
+    renderHome();
+  }
+}
+
+function openEditGH(idx){
+  const gh=state.greenhouses[idx];
+  if(!gh)return;
+  // Reuse the addGHModal but pre-fill with existing data
+  document.getElementById('gh-name').value=gh.name||'';
+  document.getElementById('gh-location').value=gh.location||'';
+  document.getElementById('gh-boxes').value=gh.boxes||'';
+  document.getElementById('gh-batches').value='';
+  document.getElementById('gh-photo-data').value=gh.photo||'';
+  document.getElementById('gh-photo-input').value='';
+  document.getElementById('gh-edit-idx').value=idx;
+  // Show existing photo if any
+  const preview=document.getElementById('gh-photo-preview');
+  const icon=document.getElementById('gh-photo-icon');
+  const span=document.getElementById('gh-photo-span');
+  if(gh.photo){
+    preview.src=gh.photo; preview.style.display='block';
+    if(icon)icon.style.display='none';
+    if(span)span.style.display='none';
+  } else {
+    preview.style.display='none';
+    if(icon)icon.style.display='';
+    if(span)span.style.display='';
+  }
+  // Change modal title and button text
+  document.querySelector('#addGHModal .modal-title').textContent='Edit Greenhouse';
+  document.querySelector('#addGHModal .btn-primary').textContent='Save Changes';
+  openModal('addGHModal');
 }
 
 function deleteGH(idx){
@@ -673,6 +727,7 @@ function openGHDetail(idx){
     statMini(usedBoxes+'/'+gh.boxes,'Boxes Used')+
     statMini(readySoon,'Ready Soon');
   document.getElementById('detail-delete-btn').onclick=()=>deleteGH(idx);
+  document.getElementById('detail-edit-btn').onclick=()=>openEditGH(idx);
   renderDetailBody(gh);
   page.style.display='block';
   page.scrollTop=0;
@@ -737,6 +792,7 @@ function renderDetailBody(gh){
           </div>
           <div style="padding:0 14px 12px;display:flex;gap:8px">
             ${!b.harvested?`<button style="flex:1;padding:8px;background:var(--green-pale);color:var(--green-mid);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="openHarvestLog(${ghIdx},${bIdx})">🌾 Log Harvest</button>`:`<div style="flex:1;padding:8px;background:#e8f5e9;border-radius:8px;font-size:11px;text-align:center;color:#2e7d32;font-weight:600">✅ Harvested: ${b.harvested.heads} heads · ₱${b.harvested.revenue.toLocaleString()}</div>`}
+            <button style="padding:8px 12px;background:#e8f4f8;color:#1565c0;border:1px solid #b3d9ee;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="openEditBatch(${ghIdx},${bIdx})">✏️</button>
             <button style="padding:8px 12px;background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="deleteBatch(${ghIdx},${bIdx})">✕</button>
           </div>
         </div>`;
@@ -751,8 +807,9 @@ function renderDetailBody(gh){
             <div class="date-item"><div class="date-label">Transplant</div><div class="date-val">${fmtDate(b.transplantDate)}</div></div>
             <div class="date-item"><div class="date-label">Harvest</div><div class="date-val">${fmtDate(b.harvestDate)}</div></div>
           </div>
-          <div style="padding:0 14px 12px">
-            <button style="width:100%;padding:8px;background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="deleteBatch(${ghIdx},${bIdx})">Delete</button>
+          <div style="padding:0 14px 12px;display:flex;gap:8px">
+            <button style="flex:1;padding:8px;background:#e8f4f8;color:#1565c0;border:1px solid #b3d9ee;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="openEditBatch(${ghIdx},${bIdx})">✏️ Edit</button>
+            <button style="flex:1;padding:8px;background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="deleteBatch(${ghIdx},${bIdx})">✕ Delete</button>
           </div>
         </div>`;
       }
@@ -823,12 +880,15 @@ function openAddBatch(ghIdx){
   document.getElementById('b-price').value='35';
   populateCropDropdown('b-crop');
   document.getElementById('b-crop').value='';
+  document.getElementById('b-edit-idx').value='-1';
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('b-sow').value=today;
   const t=new Date();t.setDate(t.getDate()+14);
   document.getElementById('b-transplant').value=t.toISOString().split('T')[0];
   const h=new Date();h.setDate(h.getDate()+45);
   document.getElementById('b-harvest').value=h.toISOString().split('T')[0];
+  document.querySelector('#addBatchModal .modal-title').textContent='Add Batch';
+  document.querySelector('#addBatchModal .btn-primary').textContent='Add Batch';
   openModal('addBatchModal');
 }
 
@@ -866,23 +926,60 @@ function saveBatch(){
   const gh=state.greenhouses[ghIdx];
   if(!gh)return;
   const name=document.getElementById('b-name').value.trim()||('Batch '+(gh.batches.length+1));
-  const batch={
-    id:Date.now(),
-    name,
-    crop:document.getElementById('b-crop').value||'',
-    boxes:parseInt(document.getElementById('b-boxes').value)||0,
-    holes:parseInt(document.getElementById('b-holes').value)||0,
-    pricePerHead:parseFloat(document.getElementById('b-price').value)||35,
-    sowDate:document.getElementById('b-sow').value,
-    transplantDate:document.getElementById('b-transplant').value,
-    harvestDate:document.getElementById('b-harvest').value,
-    harvested:null
-  };
-  gh.batches.push(batch);
+  const editIdx=parseInt(document.getElementById('b-edit-idx').value);
+
+  if(editIdx>=0){
+    // Edit existing batch — preserve harvested data
+    const b=gh.batches[editIdx];
+    b.name=name;
+    b.crop=document.getElementById('b-crop').value||'';
+    b.boxes=parseInt(document.getElementById('b-boxes').value)||0;
+    b.holes=parseInt(document.getElementById('b-holes').value)||0;
+    b.pricePerHead=parseFloat(document.getElementById('b-price').value)||35;
+    b.sowDate=document.getElementById('b-sow').value;
+    b.transplantDate=document.getElementById('b-transplant').value;
+    b.harvestDate=document.getElementById('b-harvest').value;
+  } else {
+    // Add new batch
+    const batch={
+      id:Date.now(),name,
+      crop:document.getElementById('b-crop').value||'',
+      boxes:parseInt(document.getElementById('b-boxes').value)||0,
+      holes:parseInt(document.getElementById('b-holes').value)||0,
+      pricePerHead:parseFloat(document.getElementById('b-price').value)||35,
+      sowDate:document.getElementById('b-sow').value,
+      transplantDate:document.getElementById('b-transplant').value,
+      harvestDate:document.getElementById('b-harvest').value,
+      harvested:null
+    };
+    gh.batches.push(batch);
+  }
   save();
   closeModal('addBatchModal');
   renderDetailBody(gh);
   renderHome();
+}
+
+function openEditBatch(ghIdx, bIdx){
+  const gh=state.greenhouses[ghIdx];
+  const b=gh&&gh.batches[bIdx];
+  if(!b)return;
+  // Pre-fill form
+  document.getElementById('b-gh-id').value=ghIdx;
+  document.getElementById('b-edit-idx').value=bIdx;
+  document.getElementById('b-name').value=b.name||'';
+  document.getElementById('b-boxes').value=b.boxes||'';
+  document.getElementById('b-holes').value=b.holes||15;
+  document.getElementById('b-price').value=b.pricePerHead||35;
+  document.getElementById('b-sow').value=b.sowDate||'';
+  document.getElementById('b-transplant').value=b.transplantDate||'';
+  document.getElementById('b-harvest').value=b.harvestDate||'';
+  populateCropDropdown('b-crop');
+  document.getElementById('b-crop').value=b.crop||'';
+  // Update modal title and button
+  document.querySelector('#addBatchModal .modal-title').textContent='Edit Batch';
+  document.querySelector('#addBatchModal .btn-primary').textContent='Save Changes';
+  openModal('addBatchModal');
 }
 
 function fmtDate(d){
