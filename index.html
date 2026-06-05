@@ -502,11 +502,11 @@ html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;c
       </div>
       <div class="form-group">
         <label class="form-label">Transplant Date <span style="font-size:10px;color:var(--text-soft)">(auto-filled)</span></label>
-        <input class="form-input" id="b-transplant" type="date">
+        <input class="form-input" id="b-transplant" type="date" onchange="autoFillHarvestFromTransplant()">
       </div>
       <div class="form-group">
         <label class="form-label">Expected Harvest Date <span style="font-size:10px;color:var(--text-soft)">(auto-filled)</span></label>
-        <input class="form-input" id="b-harvest" type="date">
+        <input class="form-input" id="b-harvest" type="date" onchange="autoFillBackward()">
       </div>
       <div class="form-group">
         <label class="form-label">Price per Head (₱)</label>
@@ -522,11 +522,11 @@ html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;c
 <script>
 // Default crops with nursery days + grow days
 const DEFAULT_CROPS = [
-  {name:'Petchay',    nursery:14, grow:21},
-  {name:'Bokchoy',   nursery:14, grow:25},
-  {name:'Olmeitie',  nursery:14, grow:28},
-  {name:'Red Lettuce',nursery:14, grow:35},
-  {name:'Arugula',   nursery:10, grow:28},
+  {name:'Petchay',    nursery:14, grow:31},
+  {name:'Bokchoy',   nursery:14, grow:31},
+  {name:'Olmeitie',  nursery:14, grow:31},
+  {name:'Red Lettuce',nursery:14, grow:31},
+  {name:'Arugula',   nursery:14, grow:31},
 ];
 
 function getDefaultState(){
@@ -862,12 +862,37 @@ function autoFillDates(){
   const sel=document.getElementById('b-crop');
   const crop=(state.crops||[]).find(c=>c.name===sel.value);
   const nursery=crop?crop.nursery:14;
-  const grow=crop?crop.grow:30;
+  const grow=crop?crop.grow:31;
   const sow=new Date(sowVal+'T00:00:00');
   const trans=new Date(sow);trans.setDate(trans.getDate()+nursery);
   const harv=new Date(trans);harv.setDate(harv.getDate()+grow);
   document.getElementById('b-transplant').value=trans.toISOString().split('T')[0];
   document.getElementById('b-harvest').value=harv.toISOString().split('T')[0];
+}
+
+function autoFillHarvestFromTransplant(){
+  const transVal=document.getElementById('b-transplant').value;
+  if(!transVal) return;
+  const sel=document.getElementById('b-crop');
+  const crop=(state.crops||[]).find(c=>c.name===sel.value);
+  const grow=crop?crop.grow:31;
+  const trans=new Date(transVal+'T00:00:00');
+  const harv=new Date(trans);harv.setDate(harv.getDate()+grow);
+  document.getElementById('b-harvest').value=harv.toISOString().split('T')[0];
+}
+
+function autoFillBackward(){
+  const harvVal=document.getElementById('b-harvest').value;
+  if(!harvVal) return;
+  const sel=document.getElementById('b-crop');
+  const crop=(state.crops||[]).find(c=>c.name===sel.value);
+  const nursery=crop?crop.nursery:14;
+  const grow=crop?crop.grow:31;
+  const harv=new Date(harvVal+'T00:00:00');
+  const trans=new Date(harv);trans.setDate(trans.getDate()-grow);
+  const sow=new Date(trans);sow.setDate(sow.getDate()-nursery);
+  document.getElementById('b-transplant').value=trans.toISOString().split('T')[0];
+  document.getElementById('b-sow').value=sow.toISOString().split('T')[0];
 }
 
 function openAddBatch(ghIdx){
@@ -1334,9 +1359,33 @@ function checkSeedlingAlerts(){
 }
 
 function markSeedlingDone(idx){
-  state.seedlings[idx].done = true;
+  const s = state.seedlings[idx];
+  if(s.stage === 'maturing'){
+    // Day 14 done — fully complete, archive it
+    s.done = true;
+  } else {
+    // Day 2 incubation done — move to maturing (Day 3-14)
+    s.stage = 'maturing';
+    s.matureMs = Date.now() + (12 * 24 * 60 * 60 * 1000); // 12 more days
+    scheduleMaturingNotification(s);
+  }
   save();
   renderHome();
+}
+
+function scheduleMaturingNotification(s){
+  if(!('Notification' in window)) return;
+  const msLeft = s.matureMs - Date.now();
+  if(msLeft <= 0) return;
+  Notification.requestPermission().then(perm => {
+    if(perm !== 'granted') return;
+    setTimeout(() => {
+      new Notification('🌿 Seedlings Ready to Transplant!', {
+        body: s.crop + ' seedlings have matured — ready to move to the GH boxes!',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>'
+      });
+    }, msLeft);
+  });
 }
 
 function deleteSeedling(idx){
@@ -1357,33 +1406,70 @@ function renderSeedlings(){
   }
   container.innerHTML = active.map((s,i)=>{
     const realIdx = state.seedlings.indexOf(s);
-    const dueDate = new Date(s.dueMs);
-    const msLeft = s.dueMs - now;
-    const isReady = msLeft <= 0;
-    const hoursLeft = Math.max(0, Math.ceil(msLeft / 3600000));
-    const dueStr = isReady ? '✅ READY NOW' : (hoursLeft < 24 ? hoursLeft+'h left' : Math.ceil(msLeft/86400000)+'d left');
-    const cardBg = isReady ? '#e8f5e9' : 'var(--white)';
-    const borderCol = isReady ? '#4a9b4a' : 'var(--border)';
-    const pct = Math.min(100, Math.max(0, Math.round((1 - msLeft/(2*24*3600*1000))*100)));
-    return `<div style="background:${cardBg};border:1.5px solid ${borderCol};border-radius:12px;padding:12px 14px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div>
-          <span style="font-size:14px;font-weight:600;color:var(--text)">${s.crop}</span>
-          <span style="font-size:11px;color:var(--text-soft);margin-left:8px">${s.trays} tray${s.trays>1?'s':''} · ${s.seeds} seeds/tray</span>
+    const isMaturing = s.stage === 'maturing';
+
+    if(isMaturing){
+      // Stage 2: Day 3-14, maturing under sunlight
+      const msLeft = s.matureMs - now;
+      const isTransplantReady = msLeft <= 0;
+      const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+      const totalMs = 12 * 24 * 3600 * 1000;
+      const pct = Math.min(100, Math.max(0, Math.round((1 - msLeft/totalMs)*100)));
+      const cardBg = isTransplantReady ? '#e8f5e9' : '#f0f7ff';
+      const borderCol = isTransplantReady ? '#4a9b4a' : '#90caf9';
+      const badge = isTransplantReady
+        ? '<span style="font-size:11px;font-weight:700;color:#2e7d32;padding:3px 8px;background:#c8e6c9;border-radius:20px">🌿 TRANSPLANT NOW</span>'
+        : '<span style="font-size:11px;font-weight:700;color:#1565c0;padding:3px 8px;background:#e3f2fd;border-radius:20px">☀️ '+daysLeft+'d until transplant</span>';
+      return `<div style="background:${cardBg};border:1.5px solid ${borderCol};border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div>
+            <span style="font-size:14px;font-weight:600;color:var(--text)">${s.crop}</span>
+            <span style="font-size:11px;color:var(--text-soft);margin-left:8px">${s.trays} tray${s.trays>1?'s':''} · ${s.seeds} seeds/tray</span>
+          </div>
+          ${badge}
         </div>
-        <span style="font-size:11px;font-weight:700;color:${isReady?'#2e7d32':'var(--text-mid)'};padding:3px 8px;background:${isReady?'#c8e6c9':'var(--green-pale)'};border-radius:20px">${dueStr}</span>
-      </div>
-      <div style="background:var(--border);border-radius:3px;height:4px;margin-bottom:8px">
-        <div style="height:100%;border-radius:3px;background:${isReady?'#4a9b4a':'var(--amber)'};width:${pct}%"></div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:11px;color:var(--text-soft)">Sown: ${new Date(s.sowDT).toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})} ${s.notes?'· '+s.notes:''}</span>
-        <div style="display:flex;gap:6px">
-          ${isReady?`<button onclick="markSeedlingDone(${realIdx})" style="background:#4a9b4a;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✓ Done</button>`:''}
-          <button onclick="deleteSeedling(${realIdx})" style="background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+        <div style="font-size:10px;color:#1565c0;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">☀️ Stage 2 — Maturing under sunlight (Day 3–14)</div>
+        <div style="background:var(--border);border-radius:3px;height:4px;margin-bottom:8px">
+          <div style="height:100%;border-radius:3px;background:${isTransplantReady?'#4a9b4a':'#42a5f5'};width:${pct}%"></div>
         </div>
-      </div>
-    </div>`;
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:11px;color:var(--text-soft)">Sown: ${new Date(s.sowDT).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>
+          <div style="display:flex;gap:6px">
+            ${isTransplantReady?`<button onclick="markSeedlingDone(${realIdx})" style="background:#4a9b4a;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✓ Transplanted to GH</button>`:''}
+            <button onclick="deleteSeedling(${realIdx})" style="background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      // Stage 1: Day 1-2, incubation in the dark
+      const msLeft = s.dueMs - now;
+      const isReady = msLeft <= 0;
+      const hoursLeft = Math.max(0, Math.ceil(msLeft / 3600000));
+      const dueStr = isReady ? '✅ Move to sunlight!' : (hoursLeft < 24 ? hoursLeft+'h left' : Math.ceil(msLeft/86400000)+'d left');
+      const cardBg = isReady ? '#fff8e1' : 'var(--white)';
+      const borderCol = isReady ? '#ffa000' : 'var(--border)';
+      const pct = Math.min(100, Math.max(0, Math.round((1 - msLeft/(2*24*3600*1000))*100)));
+      return `<div style="background:${cardBg};border:1.5px solid ${borderCol};border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div>
+            <span style="font-size:14px;font-weight:600;color:var(--text)">${s.crop}</span>
+            <span style="font-size:11px;color:var(--text-soft);margin-left:8px">${s.trays} tray${s.trays>1?'s':''} · ${s.seeds} seeds/tray</span>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:${isReady?'#e65100':'var(--text-mid)'};padding:3px 8px;background:${isReady?'#ffe0b2':'var(--green-pale)'};border-radius:20px">${dueStr}</span>
+        </div>
+        <div style="font-size:10px;color:#795548;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">🌑 Stage 1 — Incubation in dark (Day 1–2)</div>
+        <div style="background:var(--border);border-radius:3px;height:4px;margin-bottom:8px">
+          <div style="height:100%;border-radius:3px;background:${isReady?'#ffa000':'var(--amber)'};width:${pct}%"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:11px;color:var(--text-soft)">Sown: ${new Date(s.sowDT).toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})} ${s.notes?'· '+s.notes:''}</span>
+          <div style="display:flex;gap:6px">
+            ${isReady?`<button onclick="markSeedlingDone(${realIdx})" style="background:#ffa000;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">☀️ Moved to Sunlight</button>`:''}
+            <button onclick="deleteSeedling(${realIdx})" style="background:var(--red-light);color:var(--red);border:1px solid #f5c5c5;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }
   }).join('');
 }
 
@@ -1483,7 +1569,10 @@ function renderSaturdaySummary(containerId){
 function reScheduleAllNotifications(){
   if(!('Notification' in window)) return;
   const now = Date.now();
-  (state.seedlings||[]).filter(s=>!s.done && s.dueMs > now).forEach(s=>scheduleSeedlingNotification(s));
+  (state.seedlings||[]).filter(s=>!s.done).forEach(s=>{
+    if(s.stage === 'maturing' && s.matureMs > now) scheduleMaturingNotification(s);
+    else if(!s.stage && s.dueMs > now) scheduleSeedlingNotification(s);
+  });
 }
 
 // ── HARVEST LOG ──────────────────────────────────────────────────────────────
